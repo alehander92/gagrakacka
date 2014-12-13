@@ -22,7 +22,9 @@ block = '[' (arg ws?)* '|' ws? (expression '.'? ws?)* ']'
 arg = ':' label
 ws = ~"[ \\t\\n]+"i
 list = '#(' (assignable ws?)* ')'
-message = keyword / unary
+operator = '>=' / '<=' / '=' / '>' / '<' / '+' / '-' / '*' / '/' / '%' / '^' / '&' / '|' / '#'
+message = binary / keyword / unary
+binary = pure_expression ws operator ws pure_expression
 keyword = pure_expression ws (label ':' ws? pure_expression ws?)+
 unary = pure_expression ws label
 ''')
@@ -72,6 +74,7 @@ class Converter(object):
 		end = smalltalk_ast.Message(receiver, message, args)
 		return end
 
+
 	def convert_assignable(self, node):
 		return self.convert_child(node.children[0])
 
@@ -85,9 +88,14 @@ class Converter(object):
 		return smalltalk_ast.List(cells)
 
 	def convert_block(self, node):
-		print(repr(node.children[4].children[0].children[0].children[0]))
 		args = [child.children[0].children[1].text for child in node.children[1]]
 		ast = smalltalk_ast.Program([self.convert_child(child.children[0].children[0]) for child in node.children[4]])
 		out = smalltalk_ast.Block(args, ast)
 		return out
 
+
+	def convert_binary(self, node):
+		receiver = self.convert_child(node.children[0].children[0])
+		message = node.children[2].text
+		args = [self.convert_child(node.children[4].children[0])]
+		return smalltalk_ast.Message(receiver, message, args)

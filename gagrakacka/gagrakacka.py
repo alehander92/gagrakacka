@@ -202,7 +202,11 @@ env.vars['String'].handlers = {
 
 env.vars['Integer'].handlers = {
     'asString': lambda this, env: smalltalk_string(str(this.value), env),
-    'init:': value_init
+    'init:': value_init,
+    '-': lambda this, other, env: smalltalk_integer(this.value - other.value, env),
+    '+': lambda this, other, env: smalltalk_integer(this.value + other.value, env),
+    '*': lambda this, other, env: smalltalk_integer(this.value * other.value, env),
+    '/': lambda this, other, env: smalltalk_integer(this.value / other.value, env)
 }
 
 env.vars['UndefinedObject'].handlers = {
