@@ -134,8 +134,7 @@ env.vars['Integer'].handlers = {
     '+': lambda this, other, env: smalltalk_integer(this.value + other.value, env),
     '*': lambda this, other, env: smalltalk_integer(this.value * other.value, env),
     '/': lambda this, other, env: smalltalk_integer(this.value / other.value, env),
-    '=': lambda this, other, env: smalltalk_boolean(this.value == other.value, env),
-    '>': lambda this, other, env: smalltalk_boolean(this.value > other.value, env)
+    '=': lambda this, other, env: smalltalk_boolean(this.value == other.value, env)
 }
 
 env.vars['UndefinedObject'].handlers = {
@@ -239,7 +238,7 @@ env.vars['Dictionary'].handlers = {
     'keys': lambda this, env: smalltalk_array(this.value[0], env),
     'values': lambda this, env: smalltalk_array(this.value[1], env),
     'asString': lambda this, env: smalltalk_string('{\n%s\n}' % '\n'.join(
-        ['%s %s' % (key.smalltalk_send('asString', [], env).value, value.smalltalk_send('asString', [], env).value) for key, value in zip(this.value[0], this.value[1])]), env)
+        ['%s: %s' % (key.smalltalk_send('asString', [], env).value, value.smalltalk_send('asString', [], env).value) for key, value in zip(this.value[0], this.value[1])]), env)
 
 }
 
