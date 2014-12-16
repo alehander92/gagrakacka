@@ -16,7 +16,10 @@ class Interpreter(object):
         return result or env['Nil']
 
     def a_eval_integer(self, integer, env):
-        return smalltalk_integer(integer.value, env)
+        if 0 <= integer.value < 257:
+            return env.root.vars['__integerCache'][integer.value]
+        else:
+            return smalltalk_integer(integer.value, env)
 
     def a_eval_string(self, string, env):
         return smalltalk_string(string.value, env)

@@ -2,6 +2,7 @@ class Env(object):
 
     def __init__(self, parent, vars):
         self.parent, self.vars = parent, vars
+        self.root = self if self.parent is None else self.parent.root
 
     def __setitem__(self, var, value):
         self.vars[var] = value

@@ -1,4 +1,5 @@
 import types
+import colorama
 from env import Env
 from errors import MessageArgCountError
 from interpreter import Interpreter
@@ -17,14 +18,14 @@ class SObject(object):
                 else:
                     vars = {}
                 handler_env = Env(env, vars)
-                # print('MESSAGE %s in %s %s' %
-                #      (message, kind.name, 'class' if isinstance(kind, Metaclass) else ''))
+                print('%sMESSAGE %s in %s %s%s' %
+                     (colorama.Fore.GREEN, message, kind.name, 'class' if isinstance(kind, Metaclass) else '', colorama.Fore.WHITE))
                 if isinstance(kind.handlers[message], types.FunctionType):
                     return kind.handlers[message](self, *(args + [handler_env]))
                 else:
                     return self.h_send(kind.handlers[message], args, handler_env)
             else:
-                pass # print('WRONG %s %s' % (message, kind.name))
+                print('%sWRONG %s %s %s%s' % (colorama.Fore.RED, message, kind.name, 'class' if isinstance(kind, Metaclass) else '', colorama.Fore.WHITE))
         return self.smalltalk_send('doesNotUnderstand:', [message], env)
 
     def h_send(self, handler, a, env):

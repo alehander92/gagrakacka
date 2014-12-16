@@ -240,6 +240,7 @@ env.vars['Dictionary'].handlers = {
 
 }
 
+env.vars['__integerCache'] = [smalltalk_integer(i, env) for i in range(257)]
 
 def load_file(filename, env):
     with open(filename, 'r') as f:
@@ -264,6 +265,9 @@ def shell_expr(a, expr):
     except SmalltalkError, ex:
         print('error: %s' % str(ex))
 
+# a root env is expected to have
+# Integer, String, Symbol, Array, Dictionary, true, false, nil, BlockClosure
+# __integerCache
 load_file(os.path.join(os.path.abspath('.'), 'stl/boolean.st'), env)
 load_file(os.path.join(os.path.abspath('.'), 'stl/array.st'), env)
 shell()
