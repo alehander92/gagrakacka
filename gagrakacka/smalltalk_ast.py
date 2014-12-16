@@ -50,3 +50,27 @@ class List(Node):
 
     def __init__(self, cells):
         self.values = cells
+
+
+class Symbol(Node):
+
+    def __init__(self, value):
+        self.value = value
+
+
+class MethodDefinition(Node):
+
+    def __init__(self, pattern, code, locals):
+        self.pattern, self.code, self.locals = pattern, code, locals
+
+
+class ClassDefinition(Node):
+
+    def __init__(self, name, is_class, definitions):
+        self.name, self.is_class, self.definitions = name, is_class, definitions
+
+
+class Return(Node):
+
+    def __init__(self, expr):
+        self.expr = expr
