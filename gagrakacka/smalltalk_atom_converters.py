@@ -1,3 +1,5 @@
+import types
+
 def smalltalk_string(string, env):
     return env['String'].smalltalk_send('new:', [string], env)
 

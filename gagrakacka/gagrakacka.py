@@ -236,10 +236,11 @@ env.vars['Dictionary'].handlers = {
     'keys': lambda this, env: smalltalk_array(this.value[0], env),
     'values': lambda this, env: smalltalk_array(this.value[1], env),
     'asString': lambda this, env: smalltalk_string('{\n%s\n}' % '\n'.join(
-        ['%s: %s' % (key.smalltalk_send('asString', [], env).value, value.smalltalk_send('asString', [], env).value) for key, value in zip(this.value[0], this.value[1])]), env)
+        ['%s %s' % (key.smalltalk_send('asString', [], env).value, value.smalltalk_send('asString', [], env).value) for key, value in zip(this.value[0], this.value[1])]), env)
 
 }
 
+env.vars['__hotMap'] = {'new': [env.vars['Class']], 'new:': [env.vars['Class']], 'lambda:': [env.vars['BytecodeMethod'].klass], 'args:ast:': [env.vars['BlockClosure'].klass]}
 env.vars['__integerCache'] = [smalltalk_integer(i, env) for i in range(257)]
 
 def load_file(filename, env):

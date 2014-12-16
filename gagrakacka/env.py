@@ -14,4 +14,3 @@ class Env(object):
                 return a.vars[var]
             previous, a = a, a.parent
         return previous.vars['Nil']
-
