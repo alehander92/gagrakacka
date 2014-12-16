@@ -1,4 +1,5 @@
 import os
+import sys
 import parser
 from smalltalk_atom_converters import *
 from env import Env
@@ -133,7 +134,8 @@ env.vars['Integer'].handlers = {
     '+': lambda this, other, env: smalltalk_integer(this.value + other.value, env),
     '*': lambda this, other, env: smalltalk_integer(this.value * other.value, env),
     '/': lambda this, other, env: smalltalk_integer(this.value / other.value, env),
-    '=': lambda this, other, env: smalltalk_boolean(this.value == other.value, env)
+    '=': lambda this, other, env: smalltalk_boolean(this.value == other.value, env),
+    '>': lambda this, other, env: smalltalk_boolean(this.value > other.value, env)
 }
 
 env.vars['UndefinedObject'].handlers = {
@@ -176,18 +178,19 @@ def block_closure_value(this, *values_and_env):
                                    (len(this.args), len(values)))
 
     vars = {arg: value for arg, value in zip(this.args, values)}
-    handler_env = Env(env, vars)
+    handler_env = Env(this.first_env, vars)
     return Interpreter().a_eval(this.ast, handler_env)
 
 
-def init_block(this, args, ast, env):
+def init_block(this, args, ast, a, env):
     this = this.smalltalk_send('new', [], env)
     this.args = args
     this.ast = ast
+    this.first_env = a
     return this
 
 env.vars['BlockClosure'].klass.handlers = {
-    'args:ast:': init_block,
+    'args:ast:env:': init_block,
 }
 
 env.vars['BlockClosure'].handlers = {
@@ -236,11 +239,12 @@ env.vars['Dictionary'].handlers = {
     'keys': lambda this, env: smalltalk_array(this.value[0], env),
     'values': lambda this, env: smalltalk_array(this.value[1], env),
     'asString': lambda this, env: smalltalk_string('{\n%s\n}' % '\n'.join(
-        ['%s: %s' % (key.smalltalk_send('asString', [], env).value, value.smalltalk_send('asString', [], env).value) for key, value in zip(this.value[0], this.value[1])]), env)
+        ['%s %s' % (key.smalltalk_send('asString', [], env).value, value.smalltalk_send('asString', [], env).value) for key, value in zip(this.value[0], this.value[1])]), env)
 
 }
 
-env.vars['__integerCache'] = [smalltalk_integer(i, env) for i in range(257)]
+env.vars['__hotMap'] = {'new': [env.vars['Class']], 'new:': [env.vars['Class']], 'lambda:': [env.vars['BytecodeMethod'].klass], 'args:ast:env:': [env.vars['BlockClosure'].klass]}
+env.vars['__integerCache'] = [smalltalk_integer(i, env) for i in range(257)] + [0] * 2000
 
 def load_file(filename, env):
     with open(filename, 'r') as f:
@@ -268,6 +272,11 @@ def shell_expr(a, expr):
 # a root env is expected to have
 # Integer, String, Symbol, Array, Dictionary, true, false, nil, BlockClosure
 # __integerCache
-load_file(os.path.join(os.path.abspath('.'), 'stl/boolean.st'), env)
-load_file(os.path.join(os.path.abspath('.'), 'stl/array.st'), env)
-shell()
+
+if __name__ == '__main__':
+    load_file(os.path.join(os.path.abspath('.'), 'stl/boolean.st'), env)
+    load_file(os.path.join(os.path.abspath('.'), 'stl/array.st'), env)
+    if len(sys.argv) == 2:
+        load_file(os.path.join(os.path.abspath('.'), sys.argv[1]), env)
+    else:
+        shell()

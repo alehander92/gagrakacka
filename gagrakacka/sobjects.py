@@ -9,32 +9,44 @@ class SObject(object):
     def smalltalk_send(self, message, args, env):
         ancestors = [self.klass] + self.klass.smalltalk_ancestors()
 
+        if message in env.root.vars['__hotMap'] and len(env.root.vars['__hotMap'][message]) == 1:
+            hot = env.root.vars['__hotMap'][message][0]
+            # print('%sMESSAGE %s in %s %s%s' %
+            #  (colorama.Fore.GREEN, message, hot.name, 'class' if isinstance(hot, Metaclass) else '', colorama.Fore.WHITE))
+
+            return self.real_send(hot.handlers[message], message, args, env)
         for kind in ancestors:
             if message in kind.handlers:
-                if message.endswith(':'):
-                    words = message.split(':')
-                    vars = {k: v for k, v in zip(words, args)}
-                    vars['self'] = self
-                else:
-                    vars = {}
-                handler_env = Env(env, vars)
-                print('%sMESSAGE %s in %s %s%s' %
-                     (colorama.Fore.GREEN, message, kind.name, 'class' if isinstance(kind, Metaclass) else '', colorama.Fore.WHITE))
-                if isinstance(kind.handlers[message], types.FunctionType):
-                    return kind.handlers[message](self, *(args + [handler_env]))
-                else:
-                    return self.h_send(kind.handlers[message], args, handler_env)
+                # print('%sMESSAGE %s in %s %s%s' %
+                #      (colorama.Fore.GREEN, message, kind.name, 'class' if isinstance(kind, Metaclass) else '', colorama.Fore.WHITE))
+
+                return self.real_send(kind.handlers[message], message, args, env)
             else:
-                print('%sWRONG %s %s %s%s' % (colorama.Fore.RED, message, kind.name, 'class' if isinstance(kind, Metaclass) else '', colorama.Fore.WHITE))
+                pass # print('%sWRONG %s %s %s%s' % (colorama.Fore.RED, message, kind.name, 'class' if isinstance(kind, Metaclass) else '', colorama.Fore.WHITE))
         return self.smalltalk_send('doesNotUnderstand:', [message], env)
+
+    def real_send(self, handler, message, args, env):
+        # if message.endswith(':'):
+        #     words = message.split(':')
+        #     vars = {k: v for k, v in zip(words, args)}
+        # else:
+        #     vars = {}
+        # vars['self'] = self
+        if self.klass != env.root['BlockClosure']:
+            handler_env = Env(env, {'self': self})
+        else:
+            handler_env = Env(env, {})
+        if isinstance(handler, types.FunctionType):
+            return handler(self, *(args + [handler_env]))
+        else:
+            return self.h_send(handler, args, handler_env)
 
     def h_send(self, handler, a, env):
         if len(handler.args) != len(a):
             raise MessageArgCountError('Wrong number of args')
-        vars = {k: v for k, v in zip(handler.args, a)}
-        vars['self'] = self
-        handler_env = Env(env, vars)
-        return Interpreter().a_eval(handler.ast, handler_env)
+        for k, v in zip(handler.args, a):
+            env.vars[k] = v
+        return Interpreter().a_eval(handler.ast, env)
 
 
 class KlassDescription(SObject):

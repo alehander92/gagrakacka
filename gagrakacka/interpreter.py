@@ -18,6 +18,13 @@ class Interpreter(object):
     def a_eval_integer(self, integer, env):
         if 0 <= integer.value < 257:
             return env.root.vars['__integerCache'][integer.value]
+        elif 257 <= integer.value < 2570:
+            value = env.root.vars['__integerCache'][integer.value]
+            if value == 0:
+                value = env.root.vars['__integerCache'][integer.value] = smalltalk_integer(integer.value, env)
+                return value
+            else:
+                return value
         else:
             return smalltalk_integer(integer.value, env)
 
@@ -35,7 +42,7 @@ class Interpreter(object):
     def a_eval_block(self, block, env):
         args = block.args
         ast = block.ast
-        return env['BlockClosure'].smalltalk_send('args:ast:', [args, ast], env)
+        return env['BlockClosure'].smalltalk_send('args:ast:env:', [args, ast, env], env)
 
     def a_eval_assignment(self, assignment, env):
         env[assignment.cell.label] = self.a_eval(assignment.value, env)
