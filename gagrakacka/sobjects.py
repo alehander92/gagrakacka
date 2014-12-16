@@ -1,6 +1,7 @@
 import types
 from env import Env
 from errors import MessageArgCountError
+from interpreter import Interpreter
 
 class SObject(object):
 

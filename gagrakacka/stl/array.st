@@ -2,8 +2,6 @@ Array extend [
   collect: aBlock [
     | results |
     results := Array new.
-    results printNl.
-    'lalalalalalalalalala' printNl.
     self each: [:element |
       results push: (aBlock value: element)
     ].
